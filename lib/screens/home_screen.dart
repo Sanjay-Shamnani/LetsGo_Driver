@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'my_account.dart';
+import '../shared/loading.dart';
 
 class HomeScreen extends StatefulWidget{
   @override
@@ -58,17 +61,34 @@ class _MapScreen extends State<MapScreen> {
   GoogleMapController _controller;
   bool val = true;
   String status = 'ONLINE';
+  static LatLng _initialposition;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return _initialposition == null
+    ? Container(
+      alignment: Alignment.center,
+      child: Center(
+        child: Loading(),
+      ),
+    )
+    : Stack(
         children: <Widget>[
           GoogleMap(
             onMapCreated: (GoogleMapController controller) {
               _controller = controller;
             },
-            initialCameraPosition: CameraPosition(target: LatLng(40.6782, -73.4992),
-            zoom: 14.0
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            initialCameraPosition: CameraPosition(target: _initialposition,
+            zoom: 20.0
             ),
             mapType: MapType.normal,
           ),
@@ -131,19 +151,14 @@ class _MapScreen extends State<MapScreen> {
     });
   }
   
-}
-
-class AccountScreen extends StatefulWidget {
-  @override
-  _AccountScreen createState() => _AccountScreen();
-}
-
-class _AccountScreen extends State<AccountScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('AccountPage', style: TextStyle(fontSize: 30.0),),
-    );
+  void _getUserLocation() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemark = await Geolocator()
+        .placemarkFromCoordinates(position.latitude, position.longitude);
+    setState(() {
+      _initialposition = LatLng(position.latitude, position.longitude);
+    });
   }
 
 }
