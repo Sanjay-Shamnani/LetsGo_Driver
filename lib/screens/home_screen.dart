@@ -35,7 +35,7 @@ class _HomeScreen extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.attach_money),
-            title: Text('Account'),
+            title: Text('Rides'),
             backgroundColor: Colors.black
           ),
         ],
